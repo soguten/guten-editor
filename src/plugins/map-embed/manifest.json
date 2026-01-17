@@ -1,0 +1,22 @@
+{
+    "name": "Map Embed",
+    "author": "Alexandre Tavares",
+    "version": "1.0.0",
+    "entries": [
+        {
+            "path": "./extensions/slash-menu-map-extension.tsx",
+            "class": "SlashMenuMapExtensionPlugin",
+            "active": true
+        },
+        {
+            "path": "./extensions/command-map-extension-plugin.ts",
+            "class": "CommandMapExtensionPlugin",
+            "active": true
+        },
+        {
+            "path": "./extensions/leaflet-assets-extension.ts",
+            "class": "LeafletAssetsExtension",
+            "active": true
+        }
+    ]
+}
