@@ -1,0 +1,74 @@
+.guten-dev-sidebar-enabled {
+    width: 100%;
+}
+
+.dev-sidebar-shell .dev-sidebar-offcanvas {
+    width: 280px;
+    height: 100vh;
+    border-right: 1px solid #d9dde3;
+    background: #eef1f4;
+}
+
+.dev-sidebar__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.dev-sidebar__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4b5563;
+    padding: 0.35rem 0.25rem;
+    border-radius: 0.4rem;
+    font-size: 0.95rem;
+}
+
+.dev-sidebar__item:hover {
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.dev-sidebar__item-icon {
+    color: #8b95a1;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+}
+
+.dev-sidebar__new-article {
+    margin-top: 0.75rem;
+    border: 0;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    background: #dbe4ff;
+    color: #1f3a7a;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dev-sidebar__new-article:hover {
+    background: #ccd9ff;
+}
+
+@media (min-width: 1024px) {
+    .guten-dev-sidebar-enabled x-guten-editor {
+        padding-left: 280px;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 1023px) {
+    x-dev-sidebar-panel {
+        display: none !important;
+    }
+
+    .guten-dev-sidebar-enabled x-guten-editor {
+        padding-left: 0;
+    }
+}

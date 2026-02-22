@@ -1,0 +1,11 @@
+{
+    "name": "Dev Sidebar",
+    "author": "Alexandre Tavares",
+    "entries": [
+        {
+            "path": "dev-sidebar-plugin.tsx",
+            "class": "DevSidebarPlugin",
+            "active": true
+        }
+    ]
+}
