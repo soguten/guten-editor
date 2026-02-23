@@ -5,8 +5,9 @@
 .dev-sidebar-shell .dev-sidebar-offcanvas {
     width: 280px;
     height: 100vh;
-    border-right: 1px solid #d9dde3;
-    background: #eef1f4;
+    border-right: var(--border-default);
+    background: var(--color-surface-muted);
+    color: var(--color-ui-text);
 }
 
 .dev-sidebar__list {
@@ -15,45 +16,69 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: var(--space-xs);
 }
 
 .dev-sidebar__item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #4b5563;
-    padding: 0.35rem 0.25rem;
-    border-radius: 0.4rem;
-    font-size: 0.95rem;
+    border-radius: var(--menu-item-radius);
 }
 
-.dev-sidebar__item:hover {
-    background: rgba(255, 255, 255, 0.55);
+.dev-sidebar__item-button {
+    width: 100%;
+    border: 0;
+    padding: var(--space-xs) var(--space-xs);
+    border-radius: var(--menu-item-radius);
+    background: var(--menu-item-bg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--menu-item-color);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.dev-sidebar__item-button:hover {
+    background: var(--menu-item-bg-hover);
+    color: var(--menu-item-color-hover);
+}
+
+.dev-sidebar__item.is-active .dev-sidebar__item-button {
+    background: var(--menu-item-bg-selected);
+    color: var(--menu-item-color-selected);
 }
 
 .dev-sidebar__item-icon {
-    color: #8b95a1;
-    width: 16px;
-    height: 16px;
+    color: var(--color-text-secondary);
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
     display: inline-flex;
 }
 
-.dev-sidebar__new-article {
-    margin-top: 0.75rem;
-    border: 0;
-    border-radius: 0.5rem;
-    padding: 0.6rem 0.8rem;
+.dev-sidebar__item-title {
     text-align: left;
-    background: #dbe4ff;
-    color: #1f3a7a;
-    font-size: 0.9rem;
-    font-weight: 600;
+}
+
+.dev-sidebar__empty {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.dev-sidebar__new-article {
+    margin-top: var(--space-sm);
+    border: var(--button-primary-border);
+    border-radius: var(--button-radius);
+    padding: var(--button-padding-y) var(--button-padding-x);
+    text-align: left;
+    background: var(--button-primary-bg);
+    color: var(--button-primary-color);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
 }
 
 .dev-sidebar__new-article:hover {
-    background: #ccd9ff;
+    background: var(--button-primary-bg-hover);
 }
 
 @media (min-width: 1024px) {

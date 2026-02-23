@@ -1,4 +1,7 @@
+import { registerTranslation } from "@core/i18n";
 import { Plugin } from "@core/plugin-engine";
+import { en } from "./i18n/en.ts";
+import { pt } from "./i18n/pt.ts";
 import { DevSidebarPanel } from "./components/dev-sidebar-panel.tsx";
 
 const ROOT_WITH_SIDEBAR_CLASS = "guten-dev-sidebar-enabled";
@@ -24,6 +27,9 @@ export class DevSidebarPlugin extends Plugin {
         if (!import.meta.env.DEV) {
             return;
         }
+
+        registerTranslation("en", en);
+        registerTranslation("pt", pt);
 
         const envFlag = import.meta.env.VITE_ENABLE_DEV_SIDEBAR;
         const enabledByEnv = isTruthyFlag(envFlag);
