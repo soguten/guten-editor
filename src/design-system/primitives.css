@@ -341,27 +341,17 @@ hr.block {
 
 th,
 td {
-    border: 1px solid var(--color-text);
+    border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent);
     text-align: left;
     vertical-align: top;
     padding: .375rem .625rem;
     outline: none;
 }
 
-th {
-
-    font-weight: bold;
-}
-
 td {
-    min-width: 7.5rem;
+    min-width: 3rem;
     max-width: 15rem;
     height: 1rem;
-}
-
-th, td {
-  border: 1px solid var(--color-text);
-  outline: none;
 }
 
 td:focus-visible, th:focus-visible {

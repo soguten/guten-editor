@@ -5,9 +5,8 @@
     max-height: 100vh;
     background: var(--color-surface, #f5f6f8);
     color: var(--color-text, #1f2937);
-    border: 1px solid var(--color-border, #d6d8dc);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
     overflow: auto;
+    font-family: var(--font-family);
 }
 
 .offcanvas--left {

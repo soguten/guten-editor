@@ -3,7 +3,7 @@
 }
 
 .dev-sidebar-shell .dev-sidebar-offcanvas {
-    width: 280px;
+    width: fit-content;
     height: 100vh;
     border-right: var(--border-default);
     background: var(--color-surface-muted);
