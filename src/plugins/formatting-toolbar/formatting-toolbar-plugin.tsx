@@ -122,14 +122,14 @@ export class FormattingToolbarPlugin extends ExtensiblePlugin<FormattingToolbarE
             isActive: () => runCommand("stateItalic"),
             sort: 20,
         },
-        {
-            icon: <UnderlineIcon />,
-            label: t("underline"),
-            shortcut: "Mod+U",
-            onSelect: () => runCommand("toggleUnderline"),
-            isActive: () => runCommand("stateUnderline"),
-            sort: 30,
-        },
+        // {
+        //     icon: <UnderlineIcon />,
+        //     label: t("underline"),
+        //     shortcut: "Mod+U",
+        //     onSelect: () => runCommand("toggleUnderline"),
+        //     isActive: () => runCommand("stateUnderline"),
+        //     sort: 30,
+        // },
         {
             icon: <StrikeThroughIcon />,
             label: t("strikethrough"),
