@@ -1,5 +1,5 @@
 import { runCommand } from "@core/command";
-import { RowIcon, ColumnIcon } from "@components/ui/icons";
+import { TableRowIcon, TableColumnIcon } from "@components/ui/icons";
 import { BlockOptionsExtensionPlugin, BlockOptionsItem } from "../../block-controls/index.ts";
 import { findColumnIndexFromSelection, findRowIndexFromSelection } from "../commands/table-command-utils.ts";
 
@@ -14,7 +14,7 @@ export class BlockOptionsTableExtension extends BlockOptionsExtensionPlugin {
         return [
             {
                 id: "table-row-options",
-                icon: <RowIcon />,
+                icon: <TableRowIcon />,
                 label: "Row",
                 sort: 60,
                 rightIndicator: "chevron",
@@ -25,7 +25,7 @@ export class BlockOptionsTableExtension extends BlockOptionsExtensionPlugin {
             },
             {
                 id: "table-column-options",
-                icon: <ColumnIcon />,
+                icon: <TableColumnIcon />,
                 label: "Column",
                 sort: 61,
                 rightIndicator: "chevron",
