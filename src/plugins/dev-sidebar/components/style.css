@@ -5,8 +5,8 @@
 .dev-sidebar-shell .dev-sidebar-offcanvas {
     width: fit-content;
     height: 100vh;
-    border-right: var(--border-default);
-    background: var(--color-surface-muted);
+    border-right: 1px solid var(--color-border-sidebar);
+    background: var(--color-surface-sidebar);
     color: var(--color-ui-text);
 }
 

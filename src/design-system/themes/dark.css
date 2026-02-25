@@ -7,11 +7,13 @@
     --color-bg: #191919;
     --color-surface: #252525;
     --color-surface-muted: #373737;
+    --color-surface-sidebar: #373737;
     --color-text: #e5e7eb;
     --color-text-placeholder: #505050;
     --color-text-secondary: #cbd5e1;
     --color-muted: #ada9a3;
     --color-border: #353638;
+    --color-border-sidebar: #494949;
     --color-overlay: rgba(0, 0, 0, 0.65);
 
     --color-gray-600: #94a3b8;

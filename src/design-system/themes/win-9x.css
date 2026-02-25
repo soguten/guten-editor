@@ -6,11 +6,13 @@
     --color-bg: #dbdbdb;
     --color-surface: #c0c0c0;
     --color-surface-muted: #dfdfdf;
+    --color-surface-sidebar: var(--color-surface-muted);
     --color-text: #000000;
     --color-text-placeholder: #6b6b6b;
     --color-text-secondary: #222222;
     --color-muted: #444444;
     --color-border: #808080;
+    --color-border-sidebar: #808080;
     --color-overlay: rgba(0, 0, 0, 0.4);
 
     --color-gray-600: #4a4a4a;
