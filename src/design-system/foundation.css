@@ -6,6 +6,10 @@ body {
 
 .editor-container {
     max-width: var(--editor-container-max-width, 770px);
+
+    width: min(100%, calc(var(--editor-container-max-width, 770px) + var(--editor-controls-gutter)));
+    padding-left: var(--editor-controls-gutter);
+
     margin-left: auto;
     margin-right: auto;
     font-family: var(--font-family);
