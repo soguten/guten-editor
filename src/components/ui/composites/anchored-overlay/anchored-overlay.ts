@@ -2,7 +2,7 @@ import { DefaultState } from "@core/components";
 import { OverlayComponent } from "@components/editor/overlay";
 import { EventTypes } from "@utils/dom";
 import { computeOverlayPosition } from "./positioning.ts";
-import type { AnchoredOverlayPlacement, AnchoredOverlayProps } from "./types.ts";
+import type { AnchoredOverlayDetachedBehavior, AnchoredOverlayPlacement, AnchoredOverlayProps } from "./types.ts";
 
 const DEFAULT_PLACEMENT: AnchoredOverlayPlacement = "bottom";
 
@@ -22,12 +22,15 @@ export abstract class AnchoredOverlay<P extends AnchoredOverlayProps, S = Defaul
     private closing = false;
 
     private repositionFrame: number | null = null;
+    private detachedAnchorState = false;
 
     override connectedCallback(): void {
         this.closing = false;
         super.connectedCallback();
 
         if (this.closing) return;
+
+        this.applyAnchoringDefaults();
 
         this.captureAnchor();
         this.applyPosition();
@@ -77,6 +80,11 @@ export abstract class AnchoredOverlay<P extends AnchoredOverlayProps, S = Defaul
         this.anchorRange = this.getCurrentSelectionRange();
     }
 
+    /** Allows subclasses to provide defaults without reimplementing positioning internals. */
+    protected applyAnchoringDefaults(): void {
+        // no-op by default
+    }
+
     /** Subclasses may override for custom positioning (e.g., EquationPopover) */
     protected setPosition(rect: DOMRect): void {
         const anchorRect = (this.props.anchor ? this.resolveNodeRect(this.props.anchor) : null) ?? rect;
@@ -89,8 +97,12 @@ export abstract class AnchoredOverlay<P extends AnchoredOverlayProps, S = Defaul
             placement,
             offset: this.props.offset ?? 10,
             collision: {
-                flip: this.props.collision?.flip ?? true,
-                shift: this.props.collision?.shift ?? true,
+                flip: this.detachedAnchorState
+                    ? this.resolveDetachedCollisionFlag("flip")
+                    : this.props.collision?.flip ?? true,
+                shift: this.detachedAnchorState
+                    ? this.resolveDetachedCollisionFlag("shift")
+                    : this.props.collision?.shift ?? true,
                 padding: this.props.collision?.padding,
                 boundary: this.props.collision?.boundary,
             },
@@ -149,6 +161,18 @@ export abstract class AnchoredOverlay<P extends AnchoredOverlayProps, S = Defaul
         };
     }
 
+    private isAnchorOutsideBoundary(rect: DOMRect): boolean {
+        const boundary = this.resolveBoundaryRect();
+        return rect.bottom < boundary.top
+            || rect.top > boundary.bottom
+            || rect.right < boundary.left
+            || rect.left > boundary.right;
+    }
+
+    private resolveDetachedAnchorBehavior(): AnchoredOverlayDetachedBehavior {
+        return this.props.detachedAnchorBehavior ?? "remove";
+    }
+
     private lockSelectionIfNeeded(): void {
         if (this.props.selectionController) {
             this.props.selectionController.lock();
@@ -165,16 +189,39 @@ export abstract class AnchoredOverlay<P extends AnchoredOverlayProps, S = Defaul
     private applyPosition(): void {
         if (!this.isConnected || this.closing) return;
 
+        if (!this.shouldApplyPosition()) return;
+
         if (this.props.shouldPosition && !this.props.shouldPosition()) return;
 
         const rect = this.resolveAnchorRect();
 
         if (!rect) {
-            if (this.props.hideWhenDetached) this.remove();
+            if (this.resolveDetachedAnchorBehavior() === "remove") this.remove();
             return;
         }
 
+        const isDetachedAnchor = this.isAnchorOutsideBoundary(rect);
+        const detachedBehavior = this.resolveDetachedAnchorBehavior();
+
+        if (isDetachedAnchor && detachedBehavior === "remove") {
+            this.remove();
+            return;
+        }
+
+        this.detachedAnchorState = isDetachedAnchor;
         this.setPosition(rect);
+    }
+
+    /** Hook for subclasses that need to disable positioning in specific environments. */
+    protected shouldApplyPosition(): boolean {
+        return true;
+    }
+
+    private resolveDetachedCollisionFlag(type: "flip" | "shift"): boolean {
+        if (this.resolveDetachedAnchorBehavior() === "track") return false;
+        return type === "flip"
+            ? this.props.collision?.flip ?? true
+            : this.props.collision?.shift ?? true;
     }
 
     private handleViewportChange = () => {

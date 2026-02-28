@@ -30,6 +30,8 @@ export interface AnchoredOverlayUpdateOn {
     animationFrame?: boolean;
 }
 
+export type AnchoredOverlayDetachedBehavior = "remove" | "pin" | "track";
+
 export interface AnchoredOverlayPositionResult {
     left: number;
     top: number;
@@ -49,6 +51,12 @@ export interface AnchoredOverlayProps {
     matchAnchorWidth?: boolean;
     collision?: AnchoredOverlayCollision;
     updateOn?: AnchoredOverlayUpdateOn;
-    hideWhenDetached?: boolean;
+    /**
+     * Controls what happens when the anchor leaves the active boundary:
+     * - "remove" (default): closes overlay when anchor leaves boundary
+     * - "pin": keeps overlay clamped to boundary edge
+     * - "track": keeps following anchor even outside boundary
+     */
+    detachedAnchorBehavior?: AnchoredOverlayDetachedBehavior;
     onPositionChange?: (result: AnchoredOverlayPositionResult) => void;
 }

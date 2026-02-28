@@ -2,7 +2,6 @@ import { t } from "@core/i18n";
 import { EventTypes } from "@utils/dom";
 import { KeyboardKeys } from "@utils/keyboard";
 import { isMobileSheetViewport } from "@utils/platform";
-import { OverlayComponent } from "@components/editor/overlay";
 import { findClosestAncestorOfSelectionByClass } from "@utils/dom";
 import { getCurrentSelectionRange } from "@utils/selection";
 import { SlashMenuItem } from "./slash-menu-item.tsx";
@@ -31,7 +30,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
     private mouseY: number = 0;
     private mouseMoved: boolean = false;
     private previousScrollTop: number = 0;
-    // private repositionFrame: number | null = null;
 
     static override get tagName() {
         return "guten-slash-menu";
@@ -131,11 +129,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
             selectedIndex: 0,
             filter: ""
         };
-
-        // this.props.placement = "bottom-start";
-        // this.props.offset = { mainAxis: 8 };
-        // this.props.collision = { flip: true, shift: true, padding: 12 };
-        // this.props.hideWhenDetached = true;
     }
 
     override connectedCallback(): void {
@@ -149,22 +142,17 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
         this.registerEvent(document, EventTypes.Input, this.handleInput as EventListener);
         this.registerEvent(document, EventTypes.SelectionChange, this.handleSelectionChange as EventListener);
 
-
-        this.ensureAnchoringDefaults();
-
         this.setState({ items: this.props.items });
-
-        // if (!isMobileSheetViewport()) {
-        //     this.positionToAnchor(this.props.anchorNode);
-        // }
-
         this.updateFilterFromEditor();
     }
 
-    private ensureAnchoringDefaults(): void {
+    protected override applyAnchoringDefaults(): void {
+        this.props.anchor ??= this.props.anchorNode;
         this.props.placement ??= "bottom-start";
+        this.props.detachedAnchorBehavior ??= "track";
         this.props.offset ??= { mainAxis: 8 };
-        this.props.hideWhenDetached ??= true;
+        this.props.shouldPosition ??= () => !isMobileSheetViewport();
+        this.props.anchorRectResolver ??= SlashMenuOverlay.resolveSlashAnchorRect;
 
         this.props.collision = {
             flip: this.props.collision?.flip ?? true,
@@ -172,21 +160,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
             padding: this.props.collision?.padding ?? 12,
             boundary: this.props.collision?.boundary,
         };
-    }
-
-    protected override resolveAnchorRect(): DOMRect | null {
-        const nodeRect = this.getNodeRect(this.props.anchorNode);
-        if (nodeRect) {
-            this.props.anchorRect = nodeRect;
-            return nodeRect;
-        }
-
-        return super.resolveAnchorRect();
-    }
-
-    protected override setPosition(rect: DOMRect): void {
-        if (isMobileSheetViewport()) return;
-        super.setPosition(rect);
     }
 
     private readonly handleMouse = (event: MouseEvent) => {
@@ -263,7 +236,7 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
         this.updateFilterFromEditor();
     };
 
-    private getNodeRect(node: Node | null | undefined): DOMRect | null {
+    private static resolveSlashAnchorRect(node: Node): DOMRect | null {
         if (!node || !node.isConnected) return null;
 
         const range = document.createRange();
