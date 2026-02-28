@@ -21,6 +21,7 @@ body {
 }
 
 #contentArea {
+    box-sizing: border-box;
     padding-left: 2rem;
     color: var(--color-text);
     background-color: var(--color-bg);
@@ -29,6 +30,7 @@ body {
 }
 
 #titleArea {
+    box-sizing: border-box;
     padding-left: 2rem;
     color: var(--color-text);
     background-color: var(--color-bg);
