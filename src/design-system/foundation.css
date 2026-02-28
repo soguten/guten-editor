@@ -25,8 +25,7 @@ body {
     color: var(--color-text);
     background-color: var(--color-bg);
 
-    width: 710px;
-    max-width: 100%;
+    width: min(710px, 100%);
 }
 
 #titleArea {
@@ -152,7 +151,7 @@ ol {
 
 /* Spacing */
 
-.block{
+.block {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }

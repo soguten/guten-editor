@@ -27,20 +27,20 @@
     --line-height-tight: 1.25;
 
     /* === SPACING === */
-    --space-xs: 0.25rem;  /* 4px */
-    --space-sm: 0.5rem;   /* 8px */
-    --space-md: 1rem;     /* 16px */
-    --space-lg: 1.5rem;   /* 24px */
-    --space-xl: 2rem;     /* 32px */
-    --space-2xl: 3rem;    /* 48px */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
 
-    --space-custom-10: 0.625rem;  /* 10px */
+    --space-custom-10: 0.625rem;
 
     /* === BORDER RADIUS & SHADOWS === */
-    --radius-sm: .25rem;  /* 4px */
-    --radius-md: .5rem;   /* 8px */
-    --radius-lg: .75rem;  /* 12px */
-    --radius-xl: 1rem;    /* 16px */
+    --radius-sm: .25rem;
+    --radius-md: .5rem;
+    --radius-lg: .75rem;
+    --radius-xl: 1rem;
 
     --toolbar-radius: 1.125rem;
 
@@ -53,7 +53,7 @@
     --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.2);
 
-        /* === BUTTONS === */
+    /* === BUTTONS === */
     --button-padding-y: 0.35rem;
     --button-padding-x: 0.75rem;
     --button-radius: var(--radius-sm);
@@ -104,9 +104,9 @@
     --input-color: var(--color-text);
 
     /* === ICONS === */
-    --icon-size-sm: 1rem;     /* 16px */
-    --icon-size-md: 1.125rem; /* 18px*/
-    --icon-size-lg: 1.25rem;  /* 20px */
+    --icon-size-sm: 1rem;
+    --icon-size-md: 1.125rem;
+    --icon-size-lg: 1.25rem;
 
     /* === INTERACTION / ANIMATION === */
     --transition-fast: 0.15s ease-in-out;

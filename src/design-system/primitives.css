@@ -81,14 +81,14 @@ blockquote::before {
 
 hr.block {
     border: none;
-    border-top: var(--border-default);;
+    border-top: var(--border-default);
     margin: var(--space-lg) 0;
     height: 2px;
 }
 
 .surface {
     background: var(--color-surface);
-    border: var(--border-default);;
+    border: var(--border-default);
 }
 
 .card {
@@ -98,9 +98,7 @@ hr.block {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     font-size: var(--font-size-sm);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell,
-        "Noto Sans", "Helvetica Neue", Arial, sans-serif,
-        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: var(--font-family)
 }
 
 .guten-modal {
@@ -113,7 +111,7 @@ hr.block {
     justify-content: space-between;
     gap: var(--space-xs);
     padding: var(--space-sm) var(--space-md);
-    border-bottom: var(--border-default);;
+    border-bottom: var(--border-default);
     background: var(--color-surface);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
@@ -336,7 +334,7 @@ hr.block {
     overflow-x: auto;
     overflow-y: visible;
     width: max-content;
-    border-collapse:collapse;
+    border-collapse: collapse;
 }
 
 th,
@@ -354,9 +352,10 @@ td {
     height: 1rem;
 }
 
-td:focus-visible, th:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--color-selection);
+td:focus-visible,
+th:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--color-selection);
 }
 
 .table-add-column-area {
