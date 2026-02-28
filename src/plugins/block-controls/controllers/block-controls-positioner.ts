@@ -8,7 +8,9 @@ export class BlockControlsPositioner {
         const rect = textRect ?? blockRect;
         const top = rect.top + rect.height / 2 - dragControl.offsetHeight / 2;
         const controlsWidth = controlsWrap.offsetWidth;
-        const left = blockRect.left - controlsWidth - 8;
+        
+        const gutter = 8;
+        const left = Math.max(gutter, blockRect.left - controlsWidth - gutter);
 
         controlsWrap.style.top = `${top}px`;
         controlsWrap.style.left = `${left}px`;
