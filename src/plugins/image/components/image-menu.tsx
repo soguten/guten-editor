@@ -183,8 +183,12 @@ export class ImageMenu extends AnchoredOverlay<ImageMenuProps, ImageMenuState> {
     }
 
     protected override applyAnchoringDefaults(): void {
-        const rect = this.props.anchorRect ?? this.props.target?.getBoundingClientRect?.();
-        if (rect) {
+        const targetAnchor = this.props.target ?? null;
+        if (targetAnchor) {
+            this.props.anchor = targetAnchor;
+            this.props.anchorRect = undefined;
+        } else if (this.props.anchorRect) {
+            const rect = this.props.anchorRect;
             this.props.anchorRect = {
                 x: rect.x ?? 0,
                 y: rect.y ?? 0,
