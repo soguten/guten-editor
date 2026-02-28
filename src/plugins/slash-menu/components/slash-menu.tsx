@@ -7,8 +7,10 @@ import { findClosestAncestorOfSelectionByClass } from "@utils/dom";
 import { getCurrentSelectionRange } from "@utils/selection";
 import { SlashMenuItem } from "./slash-menu-item.tsx";
 import { SlashMenuItemData } from "./types.ts";
+import { AnchoredOverlay } from "@components/ui/composites/anchored-overlay/anchored-overlay.ts";
+import { AnchoredOverlayProps } from "@components/ui/composites";
 
-interface SlashMenuProps {
+interface SlashMenuProps extends AnchoredOverlayProps {
     items: SlashMenuItemData[];
     anchorNode: Node;
 }
@@ -19,7 +21,7 @@ interface SlashMenuState {
     filter: string;
 }
 
-export class SlashMenuOverlay extends OverlayComponent<SlashMenuProps, SlashMenuState> {
+export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuState> {
 
     private focusedBlock: HTMLElement | null;
     private range: Range | null;
@@ -29,7 +31,7 @@ export class SlashMenuOverlay extends OverlayComponent<SlashMenuProps, SlashMenu
     private mouseY: number = 0;
     private mouseMoved: boolean = false;
     private previousScrollTop: number = 0;
-    private repositionFrame: number | null = null;
+    // private repositionFrame: number | null = null;
 
     static override get tagName() {
         return "guten-slash-menu";
@@ -129,6 +131,11 @@ export class SlashMenuOverlay extends OverlayComponent<SlashMenuProps, SlashMenu
             selectedIndex: 0,
             filter: ""
         };
+
+        // this.props.placement = "bottom-start";
+        // this.props.offset = { mainAxis: 8 };
+        // this.props.collision = { flip: true, shift: true, padding: 12 };
+        // this.props.hideWhenDetached = true;
     }
 
     override connectedCallback(): void {
@@ -142,16 +149,44 @@ export class SlashMenuOverlay extends OverlayComponent<SlashMenuProps, SlashMenu
         this.registerEvent(document, EventTypes.Input, this.handleInput as EventListener);
         this.registerEvent(document, EventTypes.SelectionChange, this.handleSelectionChange as EventListener);
 
-        this.registerEvent(globalThis, EventTypes.Scroll, this.handleViewportChange as EventListener, true);
-        this.registerEvent(globalThis, EventTypes.Resize, this.handleViewportChange as EventListener);
+
+        this.ensureAnchoringDefaults();
 
         this.setState({ items: this.props.items });
 
-        if (!isMobileSheetViewport()) {
-            this.positionToAnchor(this.props.anchorNode);
-        }
+        // if (!isMobileSheetViewport()) {
+        //     this.positionToAnchor(this.props.anchorNode);
+        // }
 
         this.updateFilterFromEditor();
+    }
+
+    private ensureAnchoringDefaults(): void {
+        this.props.placement ??= "bottom-start";
+        this.props.offset ??= { mainAxis: 8 };
+        this.props.hideWhenDetached ??= true;
+
+        this.props.collision = {
+            flip: this.props.collision?.flip ?? true,
+            shift: this.props.collision?.shift ?? true,
+            padding: this.props.collision?.padding ?? 12,
+            boundary: this.props.collision?.boundary,
+        };
+    }
+
+    protected override resolveAnchorRect(): DOMRect | null {
+        const nodeRect = this.getNodeRect(this.props.anchorNode);
+        if (nodeRect) {
+            this.props.anchorRect = nodeRect;
+            return nodeRect;
+        }
+
+        return super.resolveAnchorRect();
+    }
+
+    protected override setPosition(rect: DOMRect): void {
+        if (isMobileSheetViewport()) return;
+        super.setPosition(rect);
     }
 
     private readonly handleMouse = (event: MouseEvent) => {
@@ -228,25 +263,28 @@ export class SlashMenuOverlay extends OverlayComponent<SlashMenuProps, SlashMenu
         this.updateFilterFromEditor();
     };
 
-    private readonly handleViewportChange = () => {
-        if (!this.isConnected || isMobileSheetViewport()) return;
+    private getNodeRect(node: Node | null | undefined): DOMRect | null {
+        if (!node || !node.isConnected) return null;
 
-        if (this.repositionFrame !== null) {
-            cancelAnimationFrame(this.repositionFrame);
+        const range = document.createRange();
+
+        if (node instanceof Text) {
+            const slashIndex = node.data.lastIndexOf("/");
+            const start = slashIndex >= 0 ? slashIndex : Math.max(node.length - 1, 0);
+            const end = Math.min(start + 1, node.length);
+
+            range.setStart(node, start);
+            range.setEnd(node, end);
+        } else {
+            range.selectNode(node);
         }
 
-        this.repositionFrame = requestAnimationFrame(() => {
-            this.repositionFrame = null;
+        const rects = range.getClientRects();
+        if (rects.length > 0) return rects[0] as DOMRect;
 
-            const anchor = this.props.anchorNode;
-            if (!anchor?.isConnected) {
-                this.remove();
-                return;
-            }
-
-            this.positionToAnchor(anchor);
-        });
-    };
+        const rect = range.getBoundingClientRect();
+        return rect?.width || rect?.height ? rect as DOMRect : null;
+    }
 
     private removeSlashCommand() {
         if (!this.range) return;
@@ -441,12 +479,12 @@ export class SlashMenuOverlay extends OverlayComponent<SlashMenuProps, SlashMenu
             inline: "nearest",
             behavior: "auto", // ou "instant"
         });
-        
+
 
 
         this.previousScrollTop = menu?.scrollTop || 0;
 
-        
+
     }
 
 }
