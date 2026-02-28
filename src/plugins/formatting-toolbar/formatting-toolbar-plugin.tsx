@@ -22,8 +22,8 @@ export class FormattingToolbarPlugin extends ExtensiblePlugin<FormattingToolbarE
 
         provideContext(_root, FormattingToolbarCtx, {
 
-            lock: () => FormattingToolbarPlugin.toolbarInstance?.lockSelection(),
-            unlock: () => FormattingToolbarPlugin.toolbarInstance?.unlockSelection(),
+            lock: () => FormattingToolbarPlugin.toolbarInstance?.lockSelectionRange(),
+            unlock: () => FormattingToolbarPlugin.toolbarInstance?.unlockSelectionRange(),
             refreshSelection: () => FormattingToolbarPlugin.toolbarInstance?.refreshSelection(),
             getSelectionRect: () => FormattingToolbarPlugin.toolbarInstance?.getSelectionRect() ?? null,
 

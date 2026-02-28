@@ -1,7 +1,8 @@
 import { DefaultState, DefaultProps } from "@core/components";
-import { OverlayComponent } from "@components/editor/overlay";
+import { AnchoredOverlayProps } from "../anchored-overlay";
+import { AnchoredOverlay } from "../anchored-overlay/anchored-overlay.ts";
 
-export class ToolbarUI<P extends DefaultProps = DefaultProps, S = DefaultState> extends OverlayComponent<P, S> {
+export class ToolbarUI<P extends AnchoredOverlayProps & DefaultProps = AnchoredOverlayProps & DefaultProps, S = DefaultState> extends AnchoredOverlay<P, S> {
 
     static override styles = this.extendStyles(/*css*/`
         .guten-toolbar{

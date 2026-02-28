@@ -4,8 +4,10 @@ import { EventTypes } from "@utils/dom";
 import { FormattingToolbarItem } from "./formatting-toolbar-item.tsx";
 
 import style from "./style.css?inline"
+import { AnchoredOverlayProps } from "@components/ui/composites";
+import { isMobileSheetViewport } from "@utils/platform";
 
-interface FormattingToolbarProps {
+interface FormattingToolbarProps extends AnchoredOverlayProps {
     removeInstance: () => void;
 }
 
@@ -13,7 +15,7 @@ export class FormattingToolbar extends ToolbarUI<FormattingToolbarProps> {
 
     override closeOnClickOutside: boolean = false;
     private selectionRange: Range | null = null;
-    private locked: boolean = false;
+    private lockDepth: number = 0;
     private isBackwardSelection: boolean = false;
 
     private selectionRect: DOMRect | null = null;
@@ -24,53 +26,67 @@ export class FormattingToolbar extends ToolbarUI<FormattingToolbarProps> {
         return "guten-formatting-toolbar";
     }
 
+    protected override applyAnchoringDefaults(): void {
+        this.props.placement ??= "top";
+        this.props.align ??= "center";
+        this.props.detachedAnchorBehavior ??= "track";
+        this.props.offset ??= 10;
+        this.props.shouldPosition ??= () => !isMobileSheetViewport();
+        this.props.anchorRectResolver ??= () => this.resolveSelectionAnchorRect();
+
+        this.props.collision = {
+            flip: this.props.collision?.flip ?? true,
+            shift: this.props.collision?.shift ?? true,
+            padding: this.props.collision?.padding ?? 20,
+            boundary: this.props.collision?.boundary,
+        };
+    }
+
+    protected override captureAnchor(): void {
+        const selection = globalThis.getSelection();
+        if (selection && selection.rangeCount > 0) {
+            this.isBackwardSelection = this.isSelectionBackward(selection);
+            this.selectionRange = selection.getRangeAt(0).cloneRange();
+        } else {
+            this.selectionRange = null;
+        }
+        const anchorNode = this.selectionRange?.endContainer ?? this.selectionRange?.startContainer ?? null;
+
+        if (anchorNode) {
+            this.props.anchor = anchorNode;
+        }
+
+        this.captureSelectionRect(this.selectionRange);
+        super.captureAnchor();
+    }
+
     override onMount(): void {
         requestAnimationFrame(() => {
-            this.positionToolbarNearSelection();
-
-            this.selectionRange = globalThis.getSelection()?.getRangeAt(0).cloneRange() ?? null;
+            const selection = globalThis.getSelection();
+            if (selection && selection.rangeCount > 0) {
+                this.isBackwardSelection = this.isSelectionBackward(selection);
+                this.selectionRange = selection.getRangeAt(0).cloneRange();
+            } else {
+                this.selectionRange = null;
+            }
             this.captureSelectionRect(this.selectionRange);
 
         });
 
         this.registerEvent(globalThis, EventTypes.SelectionChange, () => this.handleSelectionChange());
-        this.registerEvent(globalThis, EventTypes.Scroll, () => this.positionToolbarNearSelection());
         this.registerEvent(globalThis, EventTypes.GutenOverlayGroupClose, () => this.releaseSelectionLockWithoutRestore(), true);
     }
 
     override onUnmount(): void {
+        this.releaseSelectionLockWithoutRestore();
         this.props.removeInstance();
     }
 
     handleSelectionChange = () => {
-        if (this.locked || hasSelection()) return;
+        if (this.isSelectionLocked() || hasSelection()) return;
 
         this.remove();
     }
-
-    positionToolbarNearSelection(): void {
-        const selection = globalThis.getSelection();
-        let range: Range | null = null;
-
-        if (selection && selection.rangeCount > 0 && selection.toString().trim() !== "") {
-            range = selection.getRangeAt(0);
-            this.isBackwardSelection = this.isSelectionBackward(selection);
-        } else if (this.selectionRange) {
-            range = this.selectionRange;
-        }
-
-        if (!range) return;
-
-        const rects = range.getClientRects();
-        if (rects.length === 0) return;
-
-        const rect = this.isBackwardSelection
-            ? rects[0]
-            : rects[rects.length - 1];
-
-        this.setPosition(rect);
-    }
-
 
 
     private isSelectionBackward(selection: Selection): boolean {
@@ -86,33 +102,9 @@ export class FormattingToolbar extends ToolbarUI<FormattingToolbarProps> {
         return !!(position & Node.DOCUMENT_POSITION_PRECEDING);
     }
 
-    private setPosition(rect: DOMRect): void {
-        const elementWidth = this.offsetWidth;
-        const elementHeight = this.offsetHeight;
-
-        let leftPosition = rect.left + (rect.width / 2) - (elementWidth / 2);
-        let topPosition = rect.top - elementHeight - 10;
-
-        if (leftPosition + elementWidth > globalThis.innerWidth) {
-            leftPosition = globalThis.innerWidth - elementWidth - 20;
-        }
-
-        if (leftPosition < 20) {
-            leftPosition = 20;
-        }
-
-        if (topPosition < 0) {
-            topPosition = rect.bottom + 10;
-        }
-
-        this.style.left = `${leftPosition}px`;
-        this.style.top = `${topPosition}px`;
-    }
-
-    public lockSelection(): void {
-        if (this.locked) return;
-
-        this.locked = true;
+    public lockSelectionRange(): void {
+        this.lockDepth += 1;
+        if (this.lockDepth > 1) return;
 
         if (!this.selectionRange) {
             return;
@@ -124,8 +116,11 @@ export class FormattingToolbar extends ToolbarUI<FormattingToolbarProps> {
         clearSelection();
     }
 
-    public unlockSelection(): void {
-        if (!this.locked) return;
+    public unlockSelectionRange(): void {
+        if (this.lockDepth === 0) return;
+
+        this.lockDepth = Math.max(0, this.lockDepth - 1);
+        if (this.lockDepth > 0) return;
 
         CSS.highlights.delete('persist');
 
@@ -135,11 +130,10 @@ export class FormattingToolbar extends ToolbarUI<FormattingToolbarProps> {
                 ? (root as any).getSelection()
                 : globalThis.getSelection();
 
-        if (!sel || !this.selectionRange) { this.locked = false; return; }
+        if (!sel || !this.selectionRange) return;
 
         if (!this.selectionRange.startContainer.isConnected || !this.selectionRange.endContainer.isConnected) {
             this.refreshSelection();
-            this.locked = false;
             return;
         }
 
@@ -147,14 +141,30 @@ export class FormattingToolbar extends ToolbarUI<FormattingToolbarProps> {
 
         sel.removeAllRanges();
         sel.addRange(this.selectionRange);
+    }
 
-        this.locked = false;
+    private resolveSelectionAnchorRect(): DOMRect | null {
+        if (!this.selectionRange || !this.selectionRange.startContainer?.isConnected || !this.selectionRange.endContainer?.isConnected) {
+            return null;
+        }
+
+        const rects = this.selectionRange.getClientRects();
+        if (rects.length > 0) {
+            return this.cloneDOMRect(this.isBackwardSelection ? rects[0] : rects[rects.length - 1]);
+        }
+
+        const bounding = this.selectionRange.getBoundingClientRect?.();
+        if (bounding && (bounding.width || bounding.height)) {
+            return this.cloneDOMRect(bounding);
+        }
+
+        return null;
     }
 
     public releaseSelectionLockWithoutRestore(): void {
-        if (!this.locked) return;
+        if (this.lockDepth === 0) return;
         CSS.highlights.delete("persist");
-        this.locked = false;
+        this.lockDepth = 0;
     }
 
     public refreshSelection(): void {
@@ -162,6 +172,7 @@ export class FormattingToolbar extends ToolbarUI<FormattingToolbarProps> {
         if (!sel?.rangeCount) return;
         this.selectionRange = sel.getRangeAt(sel.rangeCount - 1).cloneRange();
         this.isBackwardSelection = this.isSelectionBackward(sel);
+        this.captureSelectionRect(this.selectionRange);
     }
 
     public refreshActiveStates(): void {
@@ -170,7 +181,7 @@ export class FormattingToolbar extends ToolbarUI<FormattingToolbarProps> {
     }
 
     public isSelectionLocked(): boolean {
-        return this.locked;
+        return this.lockDepth > 0;
     }
 
     public getSelectionRect(): DOMRect | null {
