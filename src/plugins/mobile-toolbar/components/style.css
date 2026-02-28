@@ -83,14 +83,14 @@
     }
 }
 
-@media (max-width: 770px) {
+@media (max-width: 768px) {
     guten-formatting-toolbar {
         display: none;
         opacity: 0;
         visibility: hidden;
     }
 
-    .drag-handle {
+    .block-controls {
         display: none;
         opacity: 0;
         visibility: hidden;
