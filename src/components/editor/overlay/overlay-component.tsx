@@ -30,7 +30,9 @@ export abstract class OverlayComponent<P = DefaultProps, S = DefaultState> exten
     /** Default z-index for overlays */
     zIndex: number = 1000;
 
+    /** @deprecated Prefer configuring anchored positioning in `AnchoredOverlay`. */
     positionToAnchorVerticalGap: number = 2;
+    /** @deprecated Prefer configuring anchored positioning in `AnchoredOverlay`. */
     positionToAnchorHorizontalGap: number = 2;
 
     /** Controls whether a mobile back action should be rendered. */
@@ -240,6 +242,7 @@ export abstract class OverlayComponent<P = DefaultProps, S = DefaultState> exten
         return Math.round(value);
     }
 
+    /** @deprecated Prefer `AnchoredOverlay` + placement/collision props. */
     positionToAnchor(anchorOrRect: Node | DOMRect): void {
 
         if (isMobileSheetViewport()) {
@@ -299,6 +302,7 @@ export abstract class OverlayComponent<P = DefaultProps, S = DefaultState> exten
         }
     }
 
+     /** @deprecated Prefer `AnchoredOverlay` presets for menu-like overlays. */
     public positionRelativeToMenu(anchorOrRect: HTMLElement | DOMRect, gap: number = 8): void {
 
         if (isMobileSheetViewport()) {
