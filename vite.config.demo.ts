@@ -3,7 +3,6 @@ import { fileURLToPath, URL } from "node:url";
 
 const srcPath = normalizePath(fileURLToPath(new URL("./src/", import.meta.url)));
 
-
 export default defineConfig({
     resolve: {
         alias: [
@@ -15,28 +14,13 @@ export default defineConfig({
             { find: "@utils/", replacement: `${srcPath}/utils/` },
         ],
     },
-    // server: {
-    //     fs: {
-    //         allow: [".."],
-    //     },
-    // },
     root: "demo",
     publicDir: "public",
-
-
     build: {
         outDir: "dist",
         emptyOutDir: true,
         minify: "esbuild",
         sourcemap: true,
-        // cssCodeSplit: false,
-        // assetsInlineLimit: 100000000,
-        // rollupOptions: {
-        //     output: {
-        //         inlineDynamicImports: true,
-        //         manualChunks: undefined,
-        //     },
-        // },
     },
     esbuild: {
         jsx: "automatic",

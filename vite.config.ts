@@ -4,8 +4,6 @@ import { fileURLToPath, URL } from "node:url";
 const srcPath = normalizePath(fileURLToPath(new URL("./src/", import.meta.url)));
 
 export default defineConfig({
-
-
     resolve: {
         alias: [
             { find: "@/", replacement: `${srcPath}/` },
@@ -16,11 +14,6 @@ export default defineConfig({
             { find: "@utils/", replacement: `${srcPath}/utils/` },
         ],
     },
-    // server: {
-    //     fs: {
-    //         allow: ['..'],
-    //     },
-    // },
     build: {
         outDir: "build",
         emptyOutDir: true,
@@ -29,13 +22,7 @@ export default defineConfig({
             name: "GutenEditor",
             formats: ["es"],
             fileName: () => "loader.js",
-        },
-        // rollupOptions: {
-        //     output: {
-        //         inlineDynamicImports: true,
-        //         manualChunks: undefined,
-        //     },
-        // },
+        }
     },
     esbuild: {
         jsx: "automatic",
