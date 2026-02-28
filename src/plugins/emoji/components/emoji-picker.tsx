@@ -1,9 +1,10 @@
 import { EventTypes } from "@utils/dom";
 import { KeyboardKeys } from "@utils/keyboard";
-import { OverlayComponent } from "@components/editor/overlay";
 import { EmojiClapIcon, EmojiHeartIcon, EmojiSmileyIcon } from "@components/ui/icons";
+import { AnchoredOverlay } from "@components/ui/composites/anchored-overlay/anchored-overlay.ts";
+import { AnchoredOverlayProps } from "@components/ui/composites";
 
-interface EmojiPickerOverlayProps {
+interface EmojiPickerOverlayProps extends AnchoredOverlayProps {
     range: Range;
     placeholder?: HTMLElement;
 }
@@ -21,7 +22,7 @@ interface EmojiPickerOverlayState {
     categories: Category[];
 }
 
-export class EmojiPicker extends OverlayComponent<EmojiPickerOverlayProps, EmojiPickerOverlayState> {
+export class EmojiPicker extends AnchoredOverlay<EmojiPickerOverlayProps, EmojiPickerOverlayState> {
     static override get tagName() {
         return "guten-emoji-picker";
     }
@@ -130,7 +131,23 @@ export class EmojiPicker extends OverlayComponent<EmojiPickerOverlayProps, Emoji
     override onMount(): void {
         this.registerEvent(document, EventTypes.KeyDown, this.handleKey as EventListener);
         this.style.setProperty("--columns", String(this.state.columns));
-        if (this.props.placeholder) this.positionToAnchor(this.props.placeholder);
+    }
+
+    protected override applyAnchoringDefaults(): void {
+        if (!this.props.placement) this.props.placement = "bottom-start";
+        if (this.props.offset === undefined) this.props.offset = 8;
+    }
+
+    protected override captureAnchor(): void {
+        if (this.props.placeholder?.isConnected) {
+            this.props.anchor = this.props.placeholder;
+            this.props.anchorRect = null;
+        } else {
+            this.props.anchor = null;
+            this.props.anchorRect = this.props.range.getBoundingClientRect();
+        }
+
+        super.captureAnchor();
     }
 
     private get visibleEmojis(): string[] {

@@ -40,7 +40,7 @@ export class EquationPopover extends InputPopover<EquationPopoverProps> {
             this.props.selectionController = selectionCtrl;
         }
 
-        this.targetEquation = this.props.targetEquation ?? null;
+        this.targetEquation = this.props.targetEquation ?? this.targetEquation ?? null;
 
         if (typeof this.props.initialDisplayMode === "boolean") {
             this.displayMode = this.props.initialDisplayMode;
@@ -48,10 +48,6 @@ export class EquationPopover extends InputPopover<EquationPopoverProps> {
 
         if (typeof this.props.initialLatex === "string") {
             this.input.value = this.props.initialLatex;
-        }
-
-        if (!this.targetEquation) {
-            this.targetEquation = this.findEquationFromSelection();
         }
 
         if (typeof this.props.initialDisplayMode !== "boolean") {
@@ -81,8 +77,19 @@ export class EquationPopover extends InputPopover<EquationPopoverProps> {
 
     }
 
-    override setPosition(rect: DOMRect): void {
-        this.positionToAnchor(this.props.targetEquation!);
+    protected override applyAnchoringDefaults(): void {
+        if (!this.props.placement) this.props.placement = "bottom-start";
+        if (this.props.offset === undefined) this.props.offset = 8;
+    }
+
+    protected override captureAnchor(): void {
+        this.targetEquation = this.props.targetEquation ?? this.findEquationFromSelection();
+
+        if (this.targetEquation) {
+            this.props.anchor = this.targetEquation;
+        }
+
+        super.captureAnchor();
     }
 
     /** Checkbox handler: toggles display mode. */
