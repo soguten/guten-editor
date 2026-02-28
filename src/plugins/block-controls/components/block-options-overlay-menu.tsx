@@ -13,8 +13,6 @@ export abstract class BlockOptionsOverlayMenu<Props extends BlockOptionsOverlayM
 
     override canOverlayClasses: ReadonlySet<OverlayCtor> = new Set<OverlayCtor>([BlockOptionsMenu]);
 
-    protected override positionMode: "none" | "relative" | "anchor" = "relative";
-
     protected override applyAnchoringDefaults(): void {
         const hasExplicitPlacement = this.props.placement !== undefined;
         const hasExplicitOffset = this.props.offset !== undefined;

@@ -31,9 +31,15 @@ export interface EditorSettingsMenuProps extends DefaultProps {
 }
 
 export class EditorSettingsMenu extends NavigationMenu<EditorSettingsMenuProps> {
-    protected override positionMode: "none" | "relative" | "anchor" = "anchor";
 
     private shouldRestoreAnchorSelection = true;
+
+    protected override applyAnchoringDefaults(): void {
+        super.applyAnchoringDefaults();
+        this.props.placement ??= "bottom-start";
+        this.props.offset ??= { mainAxis: 8 };
+        this.props.detachedAnchorBehavior ??= "track";
+    }
 
     override connectedCallback(): void {
         this.registerEvent(document, EventTypes.GutenOverlayGroupClose, () => {

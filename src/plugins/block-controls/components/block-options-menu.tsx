@@ -9,8 +9,6 @@ export interface BlockOptionsProps extends DefaultProps, MenuUIProps {
 
 export class BlockOptionsMenu extends MenuUI<BlockOptionsProps> {
 
-    protected override positionMode: "none" | "relative" | "anchor" = "anchor";
-
     override closeOnAnchorLoss: boolean = false;
 
     override props: BlockOptionsProps = {} as BlockOptionsProps;

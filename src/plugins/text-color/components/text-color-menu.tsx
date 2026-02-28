@@ -3,10 +3,11 @@ import { runCommand } from "@core/command";
 import { useContext } from "@core/context";
 import { MenuUI, MenuUIProps } from "@components/ui/composites/menu/index.ts";
 import type { MenuUIState } from "@components/ui/composites/menu";
-import { FormattingToolbar, FormattingToolbarContext, FormattingToolbarCtx } from "@plugins/formatting-toolbar";
+import type { SelectionController } from "@components/ui/composites";
 import { colorUtil } from "@utils/color/index.ts";
 import { TextColorMenuItem } from "./text-color-menu-item.tsx";
 import { HIGHLIGHT_COLOR_OPTIONS, normalizeColorValue, TEXT_COLOR_OPTIONS, type ColorOption } from "../color-options.ts";
+import { FormattingToolbar, FormattingToolbarCtx } from "@plugins/formatting-toolbar";
 
 interface TextColorMenuProps extends MenuUIProps {
     anchor?: HTMLElement;
@@ -19,16 +20,19 @@ interface TextColorMenuState extends MenuUIState {
 
 export class TextColorMenu extends MenuUI<TextColorMenuProps, TextColorMenuState> {
 
-    // override lockScroll = true;
-    override positionToAnchorVerticalGap: number = 12;
-    override positionToAnchorHorizontalGap: number = -20;
-
     static override get tagName() {
         return "guten-formatting-highlight-color-menu";
     }
 
-    protected override positionMode: "none" | "relative" | "anchor" = "anchor";
     protected override lockWidthOnOpen = true;
+
+    protected override applyAnchoringDefaults(): void {
+        super.applyAnchoringDefaults();
+        this.props.placement ??= "bottom-start";
+        this.props.offset ??= { mainAxis: 12, crossAxis: -20 };
+        this.props.detachedAnchorBehavior ??= "track";
+    }
+    
     override canOverlayClasses = new Set([FormattingToolbar]);
 
 
@@ -54,27 +58,24 @@ export class TextColorMenu extends MenuUI<TextColorMenuProps, TextColorMenuState
         highlightValue: HIGHLIGHT_COLOR_OPTIONS[0]?.value ?? "",
     };
 
-    private formattingToolbar: FormattingToolbarContext | undefined | null = null;
-    private selectionLocked = false;
-
     private textItems: TextColorMenuItem[] = [];
     private highlightItems: TextColorMenuItem[] = [];
 
     override onMount(): void {
+        const formattingToolbar = useContext(this, FormattingToolbarCtx);
+
+        if (formattingToolbar) {
+            const selectionCtrl: SelectionController = {
+                lock: () => formattingToolbar.lock(),
+                unlock: () => formattingToolbar.unlock(),
+            };
+
+            this.props.selectionController = selectionCtrl;
+        }
+
         super.onMount?.();
-        this.formattingToolbar = useContext(this, FormattingToolbarCtx);
 
         this.syncSelectionColors();
-
-        if (this.formattingToolbar?.lock) {
-            this.formattingToolbar.lock();
-            this.selectionLocked = true;
-        }
-    }
-
-    override onUnmount(): void {
-        this.unlockSelection();
-        super.onUnmount?.();
     }
 
     override render(): HTMLElement {
@@ -119,7 +120,7 @@ export class TextColorMenu extends MenuUI<TextColorMenuProps, TextColorMenuState
     }
 
     private handleTextColorSelect = (option: ColorOption) => {
-        this.unlockSelection();
+        this.props.selectionController?.unlock();
         this.updateStateSilently({ textValue: option.value });
         this.refreshActiveItems("text");
         runCommand("setTextColor", { content: { color: option.value } });
@@ -127,13 +128,12 @@ export class TextColorMenu extends MenuUI<TextColorMenuProps, TextColorMenuState
     };
 
     private handleHighlightColorSelect = (option: ColorOption) => {
-        this.unlockSelection();
+        this.props.selectionController?.unlock();
         this.updateStateSilently({ highlightValue: option.value });
         this.refreshActiveItems("highlight");
         runCommand("setHighlightColor", { content: { color: option.value } });
         // this.remove();
     };
-
 
     private isHighlightColorActive = (option: ColorOption): boolean => {
         return normalizeColorValue(this.state.highlightValue) === normalizeColorValue(option.value);
@@ -142,13 +142,6 @@ export class TextColorMenu extends MenuUI<TextColorMenuProps, TextColorMenuState
     private isTextColorActive = (option: ColorOption): boolean => {
         return normalizeColorValue(this.state.textValue) === normalizeColorValue(option.value);
     };
-
-    private unlockSelection(): void {
-        if (!this.selectionLocked) return;
-        this.formattingToolbar?.unlock?.();
-        this.selectionLocked = false;
-    }
-
 
     private updateStateSilently(partial: Partial<TextColorMenuState>) {
         this.state = { ...this.state, ...partial } as TextColorMenuState;

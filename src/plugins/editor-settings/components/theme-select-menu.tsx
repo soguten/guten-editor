@@ -41,8 +41,30 @@ export interface ThemeSelectMenuState extends MenuUIState {
 export class ThemeSelectMenu extends NavigationMenu<ThemeSelectMenuProps, ThemeSelectMenuState> {
 
     override canOverlayClasses: ReadonlySet<OverlayCtor> = new Set<OverlayCtor>([EditorSettingsMenu]);
-    protected override positionMode: "none" | "relative" | "anchor" = "relative";
     protected override lockWidthOnOpen = true;
+
+    protected override applyAnchoringDefaults(): void {
+        const hasExplicitPlacement = this.props.placement !== undefined;
+        const hasExplicitOffset = this.props.offset !== undefined;
+
+        super.applyAnchoringDefaults();
+
+        if (!hasExplicitPlacement) {
+            this.props.placement = "right-start";
+        }
+
+        if (!hasExplicitOffset) {
+            this.props.offset = { mainAxis: 20, crossAxis: -6 };
+            return;
+        }
+
+        if (typeof this.props.offset === "number") return;
+
+        this.props.offset = {
+            mainAxis: this.props.offset.mainAxis ?? 20,
+            crossAxis: this.props.offset.crossAxis ?? -6,
+        };
+    }
 
     override onMount(): void {
         if(!this.state.activeTheme) {
@@ -63,19 +85,6 @@ export class ThemeSelectMenu extends NavigationMenu<ThemeSelectMenuProps, ThemeS
         this.setState({ activeTheme: theme });
         this.props.onThemeSelect(theme);
     };
-
-    override afterRender(): void {
-
-        super.afterRender();
-
-        const anchor = this.props.anchor;
-
-        if (anchor) {
-            requestAnimationFrame(
-
-                () => this.positionRelativeToMenu(anchor));
-        }
-    }
 
     override render() {
         return (

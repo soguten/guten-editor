@@ -24,14 +24,6 @@ export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState =
     /** Whether the menu should start with the first item selected (index 0). */
     protected autoFocusFirst = true;
 
-    /**
-    * Initial positioning strategy for the overlay:
-    * - "none": do not auto-position
-    * - "relative": position relative to the parent menu/trigger
-    * - "anchor": position to the provided anchor element
-    */
-    protected positionMode: "none" | "relative" | "anchor" = "none";
-
     /** Locks the current menu width (via minWidth) on open to reduce layout shift during animation. */
     protected lockWidthOnOpen = false;
 
@@ -177,19 +169,8 @@ export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState =
     }
 
     protected override applyAnchoringDefaults(): void {
-        if (this.positionMode === "none") {
-            this.props.shouldPosition ??= () => false;
-            return;
-        }
-
-        if (this.positionMode === "relative") {
-            this.props.placement ??= "right-start";
-            this.props.offset ??= { mainAxis: 6, crossAxis: -6 };
-        } else {
-            this.props.placement ??= "bottom-start";
-            this.props.offset ??= { mainAxis: 8 };
-        }
-
+        this.props.placement ??= "bottom-start";
+        this.props.offset ??= { mainAxis: 8 };
         this.props.detachedAnchorBehavior ??= "remove";
         this.props.collision = {
             flip: this.props.collision?.flip ?? true,
@@ -197,10 +178,6 @@ export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState =
             padding: this.props.collision?.padding ?? 8,
             boundary: this.props.collision?.boundary,
         };
-    }
-
-    protected override shouldApplyPosition(): boolean {
-        return this.positionMode !== "none";
     }
 
     protected restoreFocusToAnchor() {

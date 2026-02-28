@@ -41,7 +41,6 @@ interface TableRowOptionsMenuProps extends DefaultProps {
 
 export class TableRowOptionsMenu extends BlockOptionsOverlayMenu<TableRowOptionsMenuProps> {
     override canOverlayClasses: ReadonlySet<OverlayCtor> = new Set<OverlayCtor>([BlockOptionsMenu]);
-    protected override positionMode: "none" | "relative" | "anchor" = "relative";
 
     override render() {
         return (
