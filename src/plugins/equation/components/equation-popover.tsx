@@ -1,5 +1,5 @@
 import { runCommand } from "@core/command";
-import { InputPopover, InputPopoverProps, SelectionController } from "@components/ui/composites/input";
+import { InputPopover, InputPopoverProps, SelectionController } from "@components/ui/composites";
 import { useContext } from "@core/context";
 import { FormattingToolbarCtx } from "@plugins/formatting-toolbar";
 import { EquationPlaceholder } from "./equation-placeholder.tsx";

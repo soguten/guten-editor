@@ -139,3 +139,55 @@
 
     --keycap-symbol-scale: 1;
 }
+
+
+/* Button */
+:root {
+
+    /* button */
+    --button-radius: var(--radius-sm);
+    --button-padding-y: 0.35rem;
+    --button-padding-x: 0.75rem;
+
+    --button-bg: var(--color-surface);
+    --button-bg-hover: var(--color-surface-muted);
+    --button-bg-active: var(--color-surface-muted);
+    --button-color: var(--color-ui-text);
+    --button-border: var(--border-default);
+    --button-shadow: none;
+    --button-font-weight: 400;
+
+    /* primary */
+    --button-primary-bg: var(--color-primary);
+    --button-primary-bg-hover: var(--color-primary-hover);
+    --button-primary-bg-active: var(--color-primary-hover);
+    --button-primary-color: var(--color-light);
+    --button-primary-border: 1px solid var(--color-primary);
+    --button-primary-shadow: none;
+
+    /* danger */
+    --button-danger-bg: var(--color-danger);
+    --button-danger-bg-hover: color-mix(in oklab, var(--color-danger) 85%, black);
+    --button-danger-bg-active: color-mix(in oklab, var(--color-danger) 75%, black);
+    --button-danger-color: var(--color-light);
+    --button-danger-border: 1px solid var(--color-danger);
+    --button-danger-shadow: none;
+}
+
+/* Input */
+:root {
+    --input-padding-y: var(--space-sm);
+    --input-padding-x: var(--space-sm);
+
+    --input-bg: var(--color-surface-muted);
+    --input-color: var(--color-text);
+    --input-border: var(--border-default);
+    --input-radius: var(--radius-sm);
+
+    --input-placeholder: var(--color-text-placeholder);
+    --input-bg-hover: var(--input-bg);
+    --input-border-hover: var(--input-border);
+
+    --input-border-focus: 1px solid var(--focus-ring-color);
+    --input-focus-ring: 0 0 0 var(--focus-ring-width) color-mix(in oklab, var(--focus-ring-color) 35%, transparent);
+}

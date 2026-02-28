@@ -464,3 +464,128 @@ p.guten-placeholder.empty.has-caret::before {
 .todo-list {
     list-style: none;
 }
+
+
+/* Button */
+.guten-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: var(--button-radius);
+    padding: var(--button-padding-y) var(--button-padding-x);
+
+    font-family: var(--button-font-family);
+    font-weight: var(--button-font-weight, var(--font-weight-medium));
+    font-size: var(--font-size-base);
+
+    border: var(--button-border);
+    box-shadow: var(--button-shadow);
+
+    background-color: var(--_btn-bg, var(--button-bg));
+    color: var(--_btn-color, var(--button-color));
+
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--transition-fast);
+}
+
+.guten-btn:hover {
+    background-color: var(--_btn-bg-hover, var(--button-bg-hover));
+}
+
+.guten-btn:active {
+    background-color: var(--_btn-bg-active, var(--button-bg-active));
+}
+
+.guten-btn--block {
+    width: 100%;
+    display: flex;
+}
+
+/* sizes */
+.guten-btn--sm {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--font-size-sm);
+}
+
+.guten-btn--md {
+    padding: var(--button-padding-y) var(--button-padding-x);
+    font-size: var(--font-size-base);
+}
+
+.guten-btn--lg {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-lg);
+}
+
+/* variants */
+.guten-btn--default {
+    --_btn-bg: var(--button-bg);
+    --_btn-bg-hover: var(--button-bg-hover);
+    --_btn-bg-active: var(--button-bg-active);
+    --_btn-color: var(--button-color);
+}
+
+.guten-btn--primary {
+    --_btn-bg: var(--button-primary-bg);
+    --_btn-bg-hover: var(--button-primary-bg-hover);
+    --_btn-bg-active: var(--button-primary-bg-active);
+    --_btn-color: var(--button-primary-color);
+    --button-border: var(--button-primary-border);
+    --button-shadow: var(--button-primary-shadow);
+}
+
+.guten-btn--danger {
+    --_btn-bg: var(--button-danger-bg);
+    --_btn-bg-hover: var(--button-danger-bg-hover);
+    --_btn-bg-active: var(--button-danger-bg-active);
+    --_btn-color: var(--button-danger-color);
+    --button-border: var(--button-danger-border);
+    --button-shadow: var(--button-danger-shadow);
+}
+
+/* Input */
+.guten-input {
+    width: 100%;
+    box-sizing: border-box;
+
+    border-radius: var(--input-radius);
+    border: var(--input-border);
+    background-color: var(--input-bg);
+    color: var(--input-color);
+
+    padding: var(--input-padding-y) var(--input-padding-x);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    outline: none;
+}
+
+.guten-input::placeholder {
+    color: var(--input-placeholder);
+}
+
+.guten-input:hover {
+    background-color: var(--input-bg-hover);
+    border: var(--input-border-hover);
+}
+
+.guten-input:focus {
+    border: var(--input-border-focus);
+    box-shadow: var(--input-focus-ring);
+}
+
+.guten-input--sm {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--font-size-sm);
+}
+
+.guten-input--md {
+    padding: var(--input-padding-y) var(--input-padding-x);
+    font-size: var(--font-size-base);
+}
+
+.guten-input--lg {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-lg);
+}
