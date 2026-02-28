@@ -1,9 +1,10 @@
 import type { DefaultProps, DefaultState } from "@core/components";
 import { KeyboardKeys } from "@utils/keyboard";
 import { EventTypes } from "@utils/dom";
-import { OverlayComponent } from "@components/editor/overlay";
+import type { AnchoredOverlayProps } from "@components/ui/composites/anchored-overlay";
+import { AnchoredOverlay } from "@components/ui/composites/anchored-overlay/anchored-overlay.ts";
 
-export interface MenuUIProps extends DefaultProps {
+export interface MenuUIProps extends DefaultProps, AnchoredOverlayProps {
     anchor?: HTMLElement;
 }
 
@@ -11,16 +12,14 @@ export interface MenuUIState extends DefaultState {
     selectedIndex: number
 }
 
-export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState = MenuUIState> extends OverlayComponent<P, S> {
+export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState = MenuUIState> extends AnchoredOverlay<P, S> {
 
     override state = { selectedIndex: 0 } as S;
 
     private _childrenMenus = new Set<HTMLElement>();
-    private _didInitialPosition = false;
     private _lastSelectedAnchor: HTMLElement | null = null;
     private _hoverByMouseEnabled = true;
     private _shouldRestoreFocusOnUnmount = true;
-    private _repositionRafId: number | null = null;
 
     /** Whether the menu should start with the first item selected (index 0). */
     protected autoFocusFirst = true;
@@ -94,8 +93,6 @@ export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState =
         this.registerEvent(this, EventTypes.Mouseover, this.onMouseOver as EventListener);
         this.registerEvent(this, EventTypes.MouseMove, this.onMouseMove as EventListener);
         this.registerEvent(document, EventTypes.GutenOverlayGroupClose, this.onOverlayGroupClose as EventListener, true);
-        this.registerEvent(globalThis, EventTypes.Scroll, this.onViewportChange as EventListener, true);
-        this.registerEvent(globalThis, EventTypes.Resize, this.onViewportChange as EventListener);
 
         if (this.autoFocusFirst !== false) {
             this.setState({ selectedIndex: 0 } as Partial<S>);
@@ -111,7 +108,6 @@ export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState =
 
         super.afterRender();
         this.applySelection();
-        this.maybeInitialReposition();
     }
 
     override onUnmount(): void {
@@ -142,19 +138,6 @@ export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState =
 
     private readonly onOverlayGroupClose = () => {
         this._shouldRestoreFocusOnUnmount = false;
-    };
-
-    private readonly onViewportChange = () => {
-        if (!this.isConnected || !this._didInitialPosition || this.positionMode === "none") return;
-
-        if (this._repositionRafId !== null) {
-            cancelAnimationFrame(this._repositionRafId);
-        }
-
-        this._repositionRafId = requestAnimationFrame(() => {
-            this._repositionRafId = null;
-            this.repositionToAnchor();
-        });
     };
 
     private onMouseMove = (_e: MouseEvent) => {
@@ -193,15 +176,31 @@ export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState =
         }
     }
 
-    private repositionToAnchor(): void {
-        const anchor = this.props.anchor;
-        if (!anchor || !anchor.isConnected) {
-            if (this.closeOnAnchorLoss) this.remove();
+    protected override applyAnchoringDefaults(): void {
+        if (this.positionMode === "none") {
+            this.props.shouldPosition ??= () => false;
             return;
         }
 
-        if (this.positionMode === "relative") this.positionRelativeToMenu(anchor);
-        else this.positionToAnchor(anchor);
+        if (this.positionMode === "relative") {
+            this.props.placement ??= "right-start";
+            this.props.offset ??= { mainAxis: 6, crossAxis: -6 };
+        } else {
+            this.props.placement ??= "bottom-start";
+            this.props.offset ??= { mainAxis: 8 };
+        }
+
+        this.props.detachedAnchorBehavior ??= "remove";
+        this.props.collision = {
+            flip: this.props.collision?.flip ?? true,
+            shift: this.props.collision?.shift ?? true,
+            padding: this.props.collision?.padding ?? 8,
+            boundary: this.props.collision?.boundary,
+        };
+    }
+
+    protected override shouldApplyPosition(): boolean {
+        return this.positionMode !== "none";
     }
 
     protected restoreFocusToAnchor() {
@@ -319,34 +318,6 @@ export class MenuUI<P extends MenuUIProps = MenuUIProps, S extends MenuUIState =
     */
     protected getButtonAtIndex(index: number): HTMLButtonElement | null {
         return this.getMenuItemButtons()[index] ?? null;
-    }
-
-    /**
-    * One-shot initial positioning:
-    * - No-ops if already done, no `anchor`, or `positionMode === "none"`.
-    * - Optionally locks current width to avoid reflow during animation.
-    * - Uses double rAF to ensure layout is settled before positioning.
-    * - Calls `positionRelativeToMenu(anchor)` or `positionToAnchor(anchor)` accordingly.
-    */
-    private maybeInitialReposition() {
-        if (this._didInitialPosition) return;
-        const { anchor } = this.props as MenuUIProps;
-        if (!anchor || !anchor.isConnected || this.positionMode === "none") {
-            return;
-        }
-
-        if (this.lockWidthOnOpen) {
-            const { width } = this.getBoundingClientRect();
-            if (width > 0) this.style.minWidth = `${width}px`;
-        }
-
-        this.repositionToAnchor();
-        this._didInitialPosition = true;
-
-        requestAnimationFrame(() => {
-            if (!this.isConnected || !anchor.isConnected) return;
-            this.repositionToAnchor();
-        });
     }
 
     /** Returns only menu item buttons (excludes overlay chrome). */

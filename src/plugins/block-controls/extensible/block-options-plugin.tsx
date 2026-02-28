@@ -64,18 +64,19 @@ export class BlockOptionsPlugin extends ExtensiblePlugin<BlockOptionsExtensionPl
         if (!items.length) return null;
 
         const anchor = anchorOrRect instanceof HTMLElement ? anchorOrRect : undefined;
+        const anchorRect = anchorOrRect instanceof DOMRect ? anchorOrRect : undefined;
         const menuEl = appendElementOnOverlayArea(
-            <BlockOptionsMenu anchor={anchor} selectionRange={options?.selectionRange ?? null}>
+            <BlockOptionsMenu
+                anchor={anchor}
+                anchorRect={anchorRect}
+                selectionRange={options?.selectionRange ?? null}
+            >
                 {items.map((item) => this.renderMenuItem(item, block, () => menuEl))}
             </BlockOptionsMenu>
         ) as BlockOptionsMenu;
 
         BlockOptionsPlugin.currentMenu = menuEl;
 
-
-        if (!(anchorOrRect instanceof HTMLElement)) {
-            menuEl.positionToAnchor(anchorOrRect || new DOMRect());
-        }
 
         return menuEl;
     }

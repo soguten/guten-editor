@@ -4,6 +4,7 @@ import { BlockOptionsMenu, type BlockOptionsProps } from "./block-options-menu.t
 
 export interface BlockOptionsOverlayMenuProps extends BlockOptionsProps {
     anchor?: HTMLElement;
+    submenuGap?: number;
 }
 
 export abstract class BlockOptionsOverlayMenu<Props extends BlockOptionsOverlayMenuProps = BlockOptionsOverlayMenuProps, State extends DefaultState = DefaultState> extends BlockOptionsMenu {
@@ -12,16 +13,36 @@ export abstract class BlockOptionsOverlayMenu<Props extends BlockOptionsOverlayM
 
     override canOverlayClasses: ReadonlySet<OverlayCtor> = new Set<OverlayCtor>([BlockOptionsMenu]);
 
-    override afterRender(): void {
+    protected override positionMode: "none" | "relative" | "anchor" = "relative";
 
-        super.afterRender();
+    protected override applyAnchoringDefaults(): void {
+        const hasExplicitPlacement = this.props.placement !== undefined;
+        const hasExplicitOffset = this.props.offset !== undefined;
 
-        const anchor = this.props.anchor;
+        super.applyAnchoringDefaults();
 
-        if (anchor) {
-            requestAnimationFrame(
-
-                () => this.positionRelativeToMenu(anchor));
+        if (!hasExplicitPlacement) {
+            this.props.placement = "right-start";
         }
+
+        if (!hasExplicitOffset) {
+            this.props.offset = {
+                mainAxis: this.props.submenuGap ?? 20,
+                crossAxis: -6,
+            };
+            return;
+        }
+
+        const offset = this.props.offset;
+        if (typeof offset === "number") {
+            return;
+        }
+
+        const offsetObj = offset ?? {};
+
+        this.props.offset = {
+            mainAxis: offsetObj.mainAxis ?? this.props.submenuGap ?? 10,
+            crossAxis: offsetObj.crossAxis ?? -6,
+        };
     }
 }

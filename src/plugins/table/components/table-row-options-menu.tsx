@@ -1,9 +1,9 @@
 import { DefaultProps } from "@core/components";
 import { OverlayCtor } from "@components/editor/overlay";
 import { runCommand } from "@core/command";
-import { MenuItemUI, MenuUI } from "@components/ui/composites/menu";
+import { MenuItemUI } from "@components/ui/composites/menu";
 import { RowInsertBottomIcon, ArrowUpIcon, DeleteRow, ArrowDownIcon, RowInsertTopIcon } from "@components/ui/icons";
-import { BlockOptionsMenu } from "../../block-controls/index.ts";
+import { BlockOptionsMenu, BlockOptionsOverlayMenu } from "../../block-controls/index.ts";
 
 interface TableRowOptionsItemProps extends DefaultProps {
     table: HTMLTableElement;
@@ -39,7 +39,7 @@ interface TableRowOptionsMenuProps extends DefaultProps {
     targetRow?: HTMLTableRowElement | null;
 }
 
-export class TableRowOptionsMenu extends MenuUI<TableRowOptionsMenuProps> {
+export class TableRowOptionsMenu extends BlockOptionsOverlayMenu<TableRowOptionsMenuProps> {
     override canOverlayClasses: ReadonlySet<OverlayCtor> = new Set<OverlayCtor>([BlockOptionsMenu]);
     protected override positionMode: "none" | "relative" | "anchor" = "relative";
 

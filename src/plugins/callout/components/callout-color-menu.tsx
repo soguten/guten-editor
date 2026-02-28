@@ -1,8 +1,6 @@
 import type { DefaultState } from "@core/components";
 import { OverlayCtor } from "@components/editor/overlay";
-import { MenuUI } from "@components/ui/composites/menu";
-import { BlockOptionsMenu, type BlockOptionsProps } from "../../block-controls/index.ts";
-import { ColorVariant } from "./types.ts";
+import { BlockOptionsMenu, BlockOptionsOverlayMenu, type BlockOptionsProps } from "../../block-controls/index.ts";import { ColorVariant } from "./types.ts";
 import { CalloutColorMenuItem } from "./callout-color-menu-item.tsx";
 
 interface CalloutColorMenuProps extends BlockOptionsProps {
@@ -23,13 +21,11 @@ const BACKGROUND_VARIANTS: ColorVariant[] = [
     { id: "danger", labelKey: "callout_color_danger", color: "var(--color-callout-danger)", rounded: true },
 ];
 
-export class CalloutColorMenu extends MenuUI<CalloutColorMenuProps, CalloutColorMenuState> {
+export class CalloutColorMenu extends BlockOptionsOverlayMenu<CalloutColorMenuProps, CalloutColorMenuState> {
 
     override canOverlayClasses: ReadonlySet<OverlayCtor> = new Set<OverlayCtor>([BlockOptionsMenu]);
 
     override props: CalloutColorMenuProps = {} as CalloutColorMenuProps;
-
-    protected override positionMode: "none" | "relative" | "anchor" = "relative";
 
     override state: CalloutColorMenuState = {
         selectedIndex: 0,
