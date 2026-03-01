@@ -4,11 +4,13 @@ import { DefaultProps, DefaultState } from "@core/components";
 import { ChordModifiers, normalizeChord } from "@utils/keyboard";
 
 export type TooltipPlacement = "top" | "bottom" | "left" | "right";
+export type TooltipTextAlign = "left" | "center" | "right";
 
 interface TooltipProps extends DefaultProps {
     text?: string;
     shortcut?: string;
     placement?: TooltipPlacement;
+    textAlign?: TooltipTextAlign;
     offset?: number;
     open?: boolean;
 }
@@ -31,7 +33,6 @@ export class Tooltip<P extends TooltipProps = TooltipProps, S = DefaultState>
             display: flex;
             flex-direction: column;
             padding: var(--space-xs) var(--space-sm);
-            text-align: left;
             position: absolute;
             border-radius: var(--radius-sm);
             box-shadow: var(--shadow-md);
@@ -69,6 +70,18 @@ export class Tooltip<P extends TooltipProps = TooltipProps, S = DefaultState>
           left: calc(100% + var(--tooltip-offset));
           top: 50%;
           transform: translateY(-50%);
+        }
+
+        .guten-tooltip[data-text-align="left"]{
+            text-align: left;
+        }
+
+        .guten-tooltip[data-text-align="center"]{
+            text-align: center;
+        }
+
+        .guten-tooltip[data-text-align="right"]{
+            text-align: right;
         }
 
         .guten-tooltip .shortcut {
@@ -117,6 +130,7 @@ export class Tooltip<P extends TooltipProps = TooltipProps, S = DefaultState>
             text,
             shortcut,
             placement = "top",
+            textAlign = "left",
             offset = 4,
             open = false
         } = this.props as TooltipProps;
@@ -149,6 +163,7 @@ export class Tooltip<P extends TooltipProps = TooltipProps, S = DefaultState>
                         role="tooltip"
                         class="guten-tooltip"
                         data-placement={placement}
+                        data-text-align={textAlign}
                         data-open={open ? "true" : "false"}
                     >
                         {tooltipText}

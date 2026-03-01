@@ -74,6 +74,7 @@ export class ToolbarItemUI<P extends ToolbarItemUIProps = DefaultProps, S = Defa
                     text={label}
                     shortcut={shortcut}
                     placement="top"
+                    textAlign="center"
                     offset={8} >
                     <button type="button">
                         {icon ?? children}
