@@ -5,6 +5,7 @@ import type { OverlayCtor } from "@components/editor/overlay";
 import { NavigationMenu } from "@components/ui/composites/navigation-menu";
 import { MenuUIState } from "@components/ui/composites/menu";
 import { EditorSettingsMenu } from "./editor-settings-menu.tsx";
+import { resolveSubmenuAnchorRectFromParentMenu } from "@components/ui/composites/index.ts";
 
 interface LangSelectItemProps extends DefaultProps {
     label: string;
@@ -54,16 +55,16 @@ export class LangSelectMenu extends NavigationMenu<LangSelectMenuProps, LangSele
         }
 
         if (!hasExplicitOffset) {
-            this.props.offset = { mainAxis: 20, crossAxis: -6 };
-            return;
+            this.props.offset = { mainAxis: 8, crossAxis: -6 };
+        } else if (typeof this.props.offset !== "number") {
+            this.props.offset = {
+                mainAxis: this.props.offset.mainAxis ?? 8,
+                crossAxis: this.props.offset.crossAxis ?? -6,
+            };
         }
 
-        if (typeof this.props.offset === "number") return;
-
-        this.props.offset = {
-            mainAxis: this.props.offset.mainAxis ?? 20,
-            crossAxis: this.props.offset.crossAxis ?? -6,
-        };
+        this.props.anchorRectResolver ??= (anchor: Node): DOMRect | null =>
+            resolveSubmenuAnchorRectFromParentMenu(anchor, this.props.placement ?? "right-start");
     }
 
     override onMount(): void {

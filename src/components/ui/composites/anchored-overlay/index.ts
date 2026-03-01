@@ -8,3 +8,5 @@ export type {
     AnchoredOverlayUpdateOn,
     SelectionController,
 } from "./types.ts";
+
+export * from "./utils.ts";

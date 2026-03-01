@@ -1,6 +1,7 @@
 import type { DefaultState } from "@core/components";
 import type { OverlayCtor } from "@components/editor/overlay";
 import { BlockOptionsMenu, type BlockOptionsProps } from "./block-options-menu.tsx";
+import { resolveSubmenuAnchorRectFromParentMenu } from "@components/ui/composites/anchored-overlay";
 
 export interface BlockOptionsOverlayMenuProps extends BlockOptionsProps {
     anchor?: HTMLElement;
@@ -16,6 +17,7 @@ export abstract class BlockOptionsOverlayMenu<Props extends BlockOptionsOverlayM
     protected override applyAnchoringDefaults(): void {
         const hasExplicitPlacement = this.props.placement !== undefined;
         const hasExplicitOffset = this.props.offset !== undefined;
+        const hasExplicitRectResolver = this.props.anchorRectResolver !== undefined;
 
         super.applyAnchoringDefaults();
 
@@ -25,22 +27,24 @@ export abstract class BlockOptionsOverlayMenu<Props extends BlockOptionsOverlayM
 
         if (!hasExplicitOffset) {
             this.props.offset = {
-                mainAxis: this.props.submenuGap ?? 20,
+                mainAxis: this.props.submenuGap ?? 8,
                 crossAxis: -6,
             };
-            return;
+        } else {
+            const offset = this.props.offset;
+            if (typeof offset !== "number") {
+                const offsetObj = offset ?? {};
+
+                this.props.offset = {
+                    mainAxis: offsetObj.mainAxis ?? this.props.submenuGap ?? 8,
+                    crossAxis: offsetObj.crossAxis ?? -6,
+                };
+            }
         }
 
-        const offset = this.props.offset;
-        if (typeof offset === "number") {
-            return;
+        if (!hasExplicitRectResolver) {
+            this.props.anchorRectResolver = (anchor: Node): DOMRect | null =>
+                resolveSubmenuAnchorRectFromParentMenu(anchor, this.props.placement ?? "right-start");
         }
-
-        const offsetObj = offset ?? {};
-
-        this.props.offset = {
-            mainAxis: offsetObj.mainAxis ?? this.props.submenuGap ?? 10,
-            crossAxis: offsetObj.crossAxis ?? -6,
-        };
     }
 }
