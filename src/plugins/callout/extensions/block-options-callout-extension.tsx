@@ -5,6 +5,10 @@ import { BlockOptionsExtensionPlugin, BlockOptionsItem } from "../../block-contr
 
 export class BlockOptionsCalloutExtension extends BlockOptionsExtensionPlugin {
 
+    override supportsRightClickToOpenBlockOptions(block: HTMLElement): boolean {
+        return block.classList.contains("callout");
+    }
+
     override items(block: HTMLElement): BlockOptionsItem[] {
         if (!block.classList.contains("callout")) return [];
 

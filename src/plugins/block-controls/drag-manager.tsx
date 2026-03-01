@@ -4,6 +4,7 @@ import { ParagraphBlock } from "@components/blocks/paragraph.tsx";
 import { focusOnElementAtStart } from "@utils/dom";
 import { BlockControls } from "./components/block-controls.tsx";
 import { BlockOptionsMenu } from "./components/block-options-menu.tsx";
+import { BlockOptionsPlugin } from "./extensible/block-options-plugin.tsx";
 
 import { DragSessionController } from "./controllers/drag-session-controller.ts";
 import { BlockControlsPositioner } from "./controllers/block-controls-positioner.ts";
@@ -22,6 +23,7 @@ export class DragManager {
     private titleArea: HTMLElement | null = null;
     private hideTimer: number | null = null;
     private layer: HTMLElement | null = null;
+    private contextMenuAnchor: HTMLElement | null = null;
 
     private lockHandleTargetWhileBlockOptionsOpen = false;
 
@@ -97,6 +99,7 @@ export class DragManager {
         this.addControl = null;
         this.layer?.remove();
         this.layer = null;
+        this.removeContextMenuAnchor();
     }
 
     private setupOverlayArea() {
@@ -217,6 +220,7 @@ export class DragManager {
     private attachListeners(el: HTMLElement) {
         el.addEventListener(EventTypes.MouseEnter, this.onMouseEnter);
         el.addEventListener(EventTypes.MouseMove, this.onMouseMove);
+        el.addEventListener(EventTypes.ContextMenu, this.onBlockContextMenu);
     }
 
     private onMouseEnter = (e: MouseEvent) => {
@@ -255,8 +259,33 @@ export class DragManager {
         }
     };
 
+    private onBlockContextMenu = (e: MouseEvent) => {
+        const block = e.currentTarget as HTMLElement | null;
+        if (!block) return;
+
+        const contextMenuConfig = BlockOptionsPlugin.contextMenuConfigForBlock(block);
+        if (!contextMenuConfig.enabled) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        this.currentTarget = block;
+
+        const anchor = this.createContextMenuAnchor(e.pageX, e.pageY);
+        const opened = runCommand('openBlockOptions', { content: { block, anchor } });
+
+        if (opened) {
+            this.lockHandleTargetWhileBlockOptionsOpen = true;
+            this.observeBlockOptionsMenuLifecycle();
+            return;
+        }
+
+        this.removeContextMenuAnchor();
+    };
+
     private onOverlayGroupClose = () => {
         this.lockHandleTargetWhileBlockOptionsOpen = false;
+        this.removeContextMenuAnchor();
     };
 
     private observeBlockOptionsMenuLifecycle() {
@@ -269,17 +298,43 @@ export class DragManager {
 
         if (!isOpen()) {
             this.lockHandleTargetWhileBlockOptionsOpen = false;
+            this.removeContextMenuAnchor();
             return;
         }
 
         this.blockOptionsMenuObserver = new MutationObserver(() => {
             if (isOpen()) return;
             this.lockHandleTargetWhileBlockOptionsOpen = false;
+            this.removeContextMenuAnchor();
             this.blockOptionsMenuObserver?.disconnect();
             this.blockOptionsMenuObserver = null;
         });
 
         this.blockOptionsMenuObserver.observe(overlayRoot, { childList: true, subtree: true });
+    }
+
+    private createContextMenuAnchor(pageX: number, pageY: number): HTMLElement {
+        this.removeContextMenuAnchor();
+
+        const anchor = document.createElement('span');
+        anchor.style.position = 'absolute';
+        anchor.style.left = `${Math.round(pageX)}px`;
+        anchor.style.top = `${Math.round(pageY)}px`;
+        anchor.style.width = '0';
+        anchor.style.height = '0';
+        anchor.style.pointerEvents = 'none';
+        anchor.style.zIndex = '-1';
+        anchor.dataset.blockOptionsContextAnchor = 'true';
+
+        document.body.appendChild(anchor);
+        this.contextMenuAnchor = anchor;
+
+        return anchor;
+    }
+
+    private removeContextMenuAnchor() {
+        this.contextMenuAnchor?.remove();
+        this.contextMenuAnchor = null;
     }
 
     private onAddClick = (e: MouseEvent) => {

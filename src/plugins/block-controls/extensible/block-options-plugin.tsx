@@ -29,6 +29,10 @@ export interface BlockOptionsItem {
     rightIndicator?: "auto" | "check" | "chevron" | "none";
 }
 
+export interface BlockOptionsContextMenuConfig {
+    enabled: boolean;
+}
+
 export class BlockOptionsPlugin extends ExtensiblePlugin<BlockOptionsExtensionPlugin> {
 
     private static instance: BlockOptionsPlugin | null = null;
@@ -52,6 +56,12 @@ export class BlockOptionsPlugin extends ExtensiblePlugin<BlockOptionsExtensionPl
         const plugin = BlockOptionsPlugin.instance;
         if (!plugin) return null;
         return plugin.open(block, anchorOrRect ?? undefined, options);
+    }
+
+    static contextMenuConfigForBlock(block: HTMLElement): BlockOptionsContextMenuConfig {
+        const plugin = BlockOptionsPlugin.instance;
+        if (!plugin) return { enabled: false };
+        return plugin.resolveContextMenuConfig(block);
     }
 
     private open(
@@ -110,6 +120,18 @@ export class BlockOptionsPlugin extends ExtensiblePlugin<BlockOptionsExtensionPl
         return [...extensionItems, separator, ...baseItems];
     }
 
+    private resolveContextMenuConfig(block: HTMLElement): BlockOptionsContextMenuConfig {
+        const enabled = this.extensions.some((ext) => {
+            if (ext.supportsRightClickToOpenBlockOptions(block)) {
+                return true;
+            }
+
+            const config = ext.contextMenuConfig?.(block);
+            return config?.enabled === true;
+        });
+
+        return { enabled };
+    }
 
     private renderMenuItem(item: BlockOptionsItem, block: HTMLElement, getMenuEl: () => BlockOptionsMenu | null): Element {
         if (item.type === "separator") {
@@ -192,4 +214,16 @@ export abstract class BlockOptionsExtensionPlugin extends PluginExtension<BlockO
     override readonly target = BlockOptionsPlugin;
 
     abstract items(block: HTMLElement): BlockOptionsItem[];
+
+    /**
+     * Explicit semantic hook: return true to allow opening BlockOptions via right-click on this block.
+     */
+    supportsRightClickToOpenBlockOptions(_block: HTMLElement): boolean {
+        return false;
+    }
+
+    /**
+     * Backward-compatible hook. Prefer supportsRightClickToOpenBlockOptions for new code.
+     */
+    contextMenuConfig?(_block: HTMLElement): BlockOptionsContextMenuConfig | null;
 }

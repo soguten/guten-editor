@@ -5,6 +5,10 @@ import { findColumnIndexFromSelection, findRowIndexFromSelection } from "../comm
 
 export class BlockOptionsTableExtension extends BlockOptionsExtensionPlugin {
 
+    override supportsRightClickToOpenBlockOptions(block: HTMLElement): boolean {
+        return block.classList.contains("table-block");
+    }
+
     override items(block: HTMLElement): BlockOptionsItem[] {
         if (!block.classList.contains("table-block")) return [];
 
