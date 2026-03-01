@@ -35,6 +35,7 @@ export class FormattingToolbarPlugin extends ExtensiblePlugin<FormattingToolbarE
 
         this.extensionPlugins = extensions ?? [];
 
+        document.addEventListener(EventTypes.MouseDown, (event: MouseEvent) => this.handleMouseDown(event));
         document.addEventListener(EventTypes.MouseUp, debounce(() => this.handleSelection(), 100) as EventListener);
 
         if (isMobileSheetViewport()) {
@@ -68,6 +69,19 @@ export class FormattingToolbarPlugin extends ExtensiblePlugin<FormattingToolbarE
         FormattingToolbarPlugin.toolbarInstance = null;
     }
 
+    private handleMouseDown(event: MouseEvent): void {
+        const existingToolbar = FormattingToolbarPlugin.toolbarInstance;
+        if (!existingToolbar || existingToolbar.isSelectionLocked()) return;
+
+        const target = event.target;
+        if (!(target instanceof Node)) return;
+
+        if (existingToolbar.contains(target)) return;
+
+        existingToolbar.remove();
+        FormattingToolbarPlugin.toolbarInstance = null;
+    }
+
     private handleSelection(): void {
 
         const hasTextSelection = hasSelection();
@@ -76,6 +90,12 @@ export class FormattingToolbarPlugin extends ExtensiblePlugin<FormattingToolbarE
         if (existingToolbar && !existingToolbar.isSelectionLocked() && !hasTextSelection) {
             existingToolbar.remove();
             FormattingToolbarPlugin.toolbarInstance = null;
+            return;
+        }
+
+        if (existingToolbar && !existingToolbar.isSelectionLocked() && hasTextSelection) {
+            existingToolbar.refreshSelection();
+            existingToolbar.refreshActiveStates();
             return;
         }
 
