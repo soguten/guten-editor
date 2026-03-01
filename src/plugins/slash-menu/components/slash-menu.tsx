@@ -24,12 +24,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
 
     private focusedBlock: HTMLElement | null;
     private range: Range | null;
-    private keyboardNavTimeout: number | undefined;
-    private keyboardNavigating: boolean = false;
-    private mouseX: number = 0;
-    private mouseY: number = 0;
-    private mouseMoved: boolean = false;
-    private previousScrollTop: number = 0;
 
     static override get tagName() {
         return "guten-slash-menu";
@@ -122,7 +116,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
 
         this.focusedBlock = findClosestAncestorOfSelectionByClass("block");
         this.range = getCurrentSelectionRange();
-        this.keyboardNavTimeout = undefined;
 
         this.state = {
             items: [],
@@ -138,7 +131,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
 
     override onMount(): void {
         this.registerEvent(document, EventTypes.KeyDown, this.handleKey as EventListener);
-        this.registerEvent(this, EventTypes.MouseMove, this.handleMouse as EventListener)
         this.registerEvent(document, EventTypes.Input, this.handleInput as EventListener);
         this.registerEvent(document, EventTypes.SelectionChange, this.handleSelectionChange as EventListener);
 
@@ -162,15 +154,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
         };
     }
 
-    private readonly handleMouse = (event: MouseEvent) => {
-        if (this.mouseX != event.clientX || this.mouseY != event.clientY) {
-            this.mouseX = event.clientX;
-            this.mouseY = event.clientY;
-
-            this.mouseMoved = true;
-        }
-    }
-
     private readonly handleKey = (event: KeyboardEvent) => {
         if (
             (event.key.length === 1 && !event.ctrlKey && !event.metaKey) ||
@@ -184,7 +167,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
 
             case KeyboardKeys.ArrowDown:
                 event.preventDefault();
-                this.setKeyboardNavigation();
                 this.setState({
                     selectedIndex: (this.state.selectedIndex + 1) % this.getFilteredItems().length,
                 });
@@ -194,7 +176,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
 
             case KeyboardKeys.ArrowUp:
                 event.preventDefault();
-                this.setKeyboardNavigation();
                 this.setState({
                     selectedIndex: (this.state.selectedIndex - 1 + this.getFilteredItems().length) % this.getFilteredItems().length,
                 });
@@ -360,32 +341,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
         this.remove();
     }
 
-    setSelectedIndex(index: number) {
-
-        if (!this.keyboardNavigating && this.state.selectedIndex !== index) {
-            this.setState({ selectedIndex: index });
-        }
-    }
-
-    mouseSetSelectedIndex(index: number) {
-        if (this.mouseMoved && this.state.selectedIndex !== index) {
-
-            const menu = this.querySelector(".slash-menu");
-
-            if (!menu) return;
-            this.previousScrollTop = menu.scrollTop || 0;
-
-            this.setState({ selectedIndex: index });
-            this.mouseMoved = false;
-
-            const menu2 = this.querySelector(".slash-menu");
-            if (menu2) {
-
-                menu2.scrollTop = this.previousScrollTop;
-            }
-        }
-    }
-
     render() {
 
         const filtered = this.getFilteredItems();
@@ -402,8 +357,6 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
                                 shortcut={item.shortcut}
                                 onSelect={() => this.handleOnSelect(item)}
                                 selected={index === this.state.selectedIndex}
-                                index={index}
-                                onMouseOver={() => this.mouseSetSelectedIndex(index)}
                             />
                         </li>
                     ))}
@@ -418,23 +371,12 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
                                     this.remove();
                                 }}
                                 selected={1 === this.state.selectedIndex}
-                                index={1}
-                                onMouseOver={() => this.mouseSetSelectedIndex(1)}
                             />
                         </li>
                     )}
                 </ul>
             </div>
         );
-    }
-
-    private setKeyboardNavigation() {
-        this.keyboardNavigating = true;
-
-        clearTimeout(this.keyboardNavTimeout);
-        this.keyboardNavTimeout = globalThis.setTimeout(() => {
-            this.keyboardNavigating = false;
-        }, 500);
     }
 
     private ensureItemVisibility() {
@@ -446,18 +388,11 @@ export class SlashMenuOverlay extends AnchoredOverlay<SlashMenuProps, SlashMenuS
 
         if (!selectedItem) return;
 
-
         selectedItem.scrollIntoView({
             block: "nearest",
             inline: "nearest",
             behavior: "auto", // ou "instant"
         });
-
-
-
-        this.previousScrollTop = menu?.scrollTop || 0;
-
-
     }
 
 }

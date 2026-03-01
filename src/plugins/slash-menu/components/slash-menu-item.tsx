@@ -2,12 +2,10 @@ import { Component } from "@core/components";
 
 export interface SlashMenuItemProps {
     icon: SVGAElement;
-    index: number;
     label: string;
     shortcut?: string;
     selected: boolean;
     onSelect: () => void;
-    onMouseOver: (index: number) => void;
 }
 
 export class SlashMenuItem extends Component<SlashMenuItemProps> {
@@ -63,7 +61,6 @@ export class SlashMenuItem extends Component<SlashMenuItemProps> {
                         event.preventDefault();
                         event.stopPropagation();
                     }}
-                    onMouseEnter={() => this.props.onMouseOver(this.props.index)}
                 >
                     {this.props.icon}
                     <span class="slash-menu-item-label">{this.props.label}</span>
@@ -72,5 +69,5 @@ export class SlashMenuItem extends Component<SlashMenuItemProps> {
                     )}
                 </button>
             </div>);
-    }   
+    }
 }
