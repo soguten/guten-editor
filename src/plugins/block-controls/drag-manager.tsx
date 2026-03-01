@@ -250,9 +250,9 @@ export class DragManager {
 
     private onHandleContextMenu = (e: MouseEvent) => {
         e.preventDefault();
-        if (!this.currentTarget || !this.controlsWrap) return;
+        if (!this.currentTarget || !this.dragControl) return;
         const block = this.currentTarget;
-        const opened = runCommand('openBlockOptions', { content: { block, anchor: this.controlsWrap } });
+        const opened = runCommand('openBlockOptions', { content: { block, anchor: this.dragControl } });
         if (opened) {
             this.lockHandleTargetWhileBlockOptionsOpen = true;
             this.observeBlockOptionsMenuLifecycle();
