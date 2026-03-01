@@ -51,6 +51,11 @@ export abstract class AnchoredOverlay<P extends AnchoredOverlayProps, S = Defaul
         }
     }
 
+    override afterRender(): void {
+        super.afterRender();
+        this.schedulePositionUpdate();
+    }
+
     override disconnectedCallback(): void {
         this.unlockSelection();
         super.disconnectedCallback();
@@ -225,6 +230,10 @@ export abstract class AnchoredOverlay<P extends AnchoredOverlayProps, S = Defaul
     }
 
     private handleViewportChange = () => {
+        this.schedulePositionUpdate();
+    };
+
+    private schedulePositionUpdate(): void {
         if (!this.isConnected || this.closing) return;
 
         if (this.repositionFrame !== null) cancelAnimationFrame(this.repositionFrame);
@@ -233,7 +242,7 @@ export abstract class AnchoredOverlay<P extends AnchoredOverlayProps, S = Defaul
             this.repositionFrame = null;
             this.applyPosition();
         });
-    };
+    }
 
     private resolveNodeRect(anchor: Node): DOMRect | null {
         const resolvedByProp = this.props.anchorRectResolver?.(anchor);
